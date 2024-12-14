@@ -1,0 +1,21 @@
+server:
+  port: 8083
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.MySQL8Dialect
+  datasource:
+    url: jdbc:mysql://localhost:3307/auth-service-estimapoker?createDatabaseIfNotExist=true
+    username:
+    password:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+
+eureka:
+  client:
+    serviceUrl:
+      defaultZone: http://localhost:8761/eureka/
+      register-with-eureka: true
+      fetch-registry: true
