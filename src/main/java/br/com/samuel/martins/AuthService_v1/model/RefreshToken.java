@@ -1,6 +1,7 @@
 package br.com.samuel.martins.AuthService_v1.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.Setter;
@@ -15,13 +16,13 @@ public class RefreshToken {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    private UUID id;
+    private String id;
 
     @Column(unique = true)
-    @NotNull
-    private UUID userId;
+    @NotBlank
+    private String userId;
 
-    @NotNull
+    @NotBlank
     private String token;
 
     @NotNull
