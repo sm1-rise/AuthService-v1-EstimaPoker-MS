@@ -1,4 +1,4 @@
-package br.com.samuel.martins.AuthService_v1.infra.security;
+package br.com.samuel.martins.AuthService_v1.infra.security.details;
 
 import br.com.samuel.martins.AuthService_v1.repository.UserRepository;
 import org.springframework.security.core.userdetails.User;

@@ -1,4 +1,4 @@
-package br.com.samuel.martins.AuthService_v1.infra.security;
+package br.com.samuel.martins.AuthService_v1.infra.security.token;
 
 import br.com.samuel.martins.AuthService_v1.model.User;
 import com.auth0.jwt.JWT;

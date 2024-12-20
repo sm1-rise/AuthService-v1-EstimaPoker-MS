@@ -1,6 +1,6 @@
 package br.com.samuel.martins.AuthService_v1.infra.security.filter;
 
-import br.com.samuel.martins.AuthService_v1.infra.security.TokenUseCase;
+import br.com.samuel.martins.AuthService_v1.infra.security.token.TokenUseCase;
 import br.com.samuel.martins.AuthService_v1.repository.UserRepository;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -25,7 +25,6 @@ public class SecurityFilter extends OncePerRequestFilter {
         this.tokenService = tokenService;
         this.userRepository = userRepository;
     }
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

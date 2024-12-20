@@ -1,7 +1,7 @@
-package br.com.samuel.martins.AuthService_v1.infra.security;
+package br.com.samuel.martins.AuthService_v1.infra.security.config;
 
+import br.com.samuel.martins.AuthService_v1.infra.security.details.CustomerDetailsService;
 import br.com.samuel.martins.AuthService_v1.infra.security.filter.SecurityFilter;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -29,6 +29,7 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
