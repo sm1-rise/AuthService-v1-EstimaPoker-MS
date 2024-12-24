@@ -1,4 +1,4 @@
-package br.com.samuel.martins.AuthService_v1.controller.dto;
+package br.com.samuel.martins.AuthService_v1.model.dto.registerUser;
 
 import br.com.samuel.martins.AuthService_v1.model.Role;
 

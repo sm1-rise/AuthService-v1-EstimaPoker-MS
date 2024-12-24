@@ -1,10 +1,11 @@
 package br.com.samuel.martins.AuthService_v1.controller;
 
-import br.com.samuel.martins.AuthService_v1.controller.dto.LoginResponseDto;
-import br.com.samuel.martins.AuthService_v1.controller.dto.RequestRegisterUserDto;
-import br.com.samuel.martins.AuthService_v1.controller.dto.ResponseDto;
-import br.com.samuel.martins.AuthService_v1.controller.dto.UserRequestDto;
+import br.com.samuel.martins.AuthService_v1.model.dto.login.LoginResponseDto;
+import br.com.samuel.martins.AuthService_v1.model.dto.registerUser.RequestRegisterUserDto;
+import br.com.samuel.martins.AuthService_v1.model.dto.registerUser.ResponseDto;
+import br.com.samuel.martins.AuthService_v1.model.dto.login.UserRequestDto;
 import br.com.samuel.martins.AuthService_v1.service.AuthService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -13,11 +14,11 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping("/auth")
-public class AuthControler {
+public class AuthController {
 
     private final AuthService service;
 
-    public AuthControler( AuthService service) {
+    public AuthController(AuthService service) {
         this.service = service;
     }
 
@@ -27,7 +28,7 @@ public class AuthControler {
     }
 
     @PostMapping("/register")
-    public ResponseEntity<ResponseDto> register(@RequestBody RequestRegisterUserDto body) {
+    public ResponseEntity<ResponseDto> register(@RequestBody RequestRegisterUserDto body) throws JsonProcessingException {
         return ResponseEntity.status(201).body(service.registerUser(body));
     }
 }
