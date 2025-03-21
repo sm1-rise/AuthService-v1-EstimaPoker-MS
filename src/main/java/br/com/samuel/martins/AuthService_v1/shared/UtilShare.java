@@ -14,6 +14,8 @@ public class UtilShare {
 
     public static final String REGEX_EMAIL = "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
+    public static final String WRONG_EMAIL_PASSWORD = "Email or password doesn't match";
+
     public static final String REGEX_PASSWORD = "^(?=.*[A-Z])(?=.*[a-z])(?=.*[\\W_]).{8,}$";
 
 }

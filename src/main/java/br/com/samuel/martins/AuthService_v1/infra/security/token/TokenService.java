@@ -16,7 +16,7 @@ import java.time.ZoneOffset;
 public class TokenService implements TokenUseCase{
 
     @Value("${api.security.token.secret}")
-    private final String SECRET = "secret";
+    private String SECRET;
 
 
     @Override
@@ -37,7 +37,7 @@ public class TokenService implements TokenUseCase{
         try{
             var algorithm = Algorithm.HMAC256(SECRET);
             return JWT.require(algorithm)
-                    .withIssuer("login-auth-api")
+                    .withIssuer("authservice")
                     .build()
                     .verify(token)
                     .getSubject();

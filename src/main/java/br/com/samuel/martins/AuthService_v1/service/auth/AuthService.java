@@ -1,14 +1,14 @@
-package br.com.samuel.martins.AuthService_v1.service;
+package br.com.samuel.martins.AuthService_v1.service.auth;
 
 import br.com.samuel.martins.AuthService_v1.infra.rabbitMQ.EmailSender;
-import br.com.samuel.martins.AuthService_v1.infra.rabbitMQ.dto.EmailBodyDto;
+import br.com.samuel.martins.AuthService_v1.infra.rabbitMQ.dto.EmailPinDto;
+import br.com.samuel.martins.AuthService_v1.model.EmailVerification;
 import br.com.samuel.martins.AuthService_v1.model.dto.login.LoginResponseDto;
 import br.com.samuel.martins.AuthService_v1.model.dto.registerUser.RequestRegisterUserDto;
 import br.com.samuel.martins.AuthService_v1.model.dto.registerUser.ResponseDto;
 import br.com.samuel.martins.AuthService_v1.model.dto.login.UserRequestDto;
-import br.com.samuel.martins.AuthService_v1.model.dto.reset.NewPasswordDto;
-import br.com.samuel.martins.AuthService_v1.model.dto.reset.ResetPasswordDto;
-import br.com.samuel.martins.AuthService_v1.model.dto.reset.ResponseResetPasswordDto;
+import br.com.samuel.martins.AuthService_v1.model.dto.reset.*;
+import br.com.samuel.martins.AuthService_v1.repository.EmailVerificationRepository;
 import br.com.samuel.martins.AuthService_v1.shared.exception.CustomException;
 import br.com.samuel.martins.AuthService_v1.shared.UtilShare;
 import br.com.samuel.martins.AuthService_v1.infra.security.token.TokenService;
@@ -22,6 +22,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.SecureRandom;
 import java.time.LocalDateTime;
 import java.util.Optional;
 
@@ -34,7 +37,7 @@ public class AuthService implements AuthServiceUseCase {
     private final TokenService tokenService;
     private final EmailSender brokenEmailSender;
 
-    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailSender brokenEmailSender) {
+    public AuthService(UserRepository userRepository, PasswordEncoder passwordEncoder, TokenService tokenService, EmailSender brokenEmailSender, EmailVerificationRepository emailVerificationRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.tokenService = tokenService;
@@ -48,7 +51,6 @@ public class AuthService implements AuthServiceUseCase {
 
         Optional<User> user = userRepository.findByEmail(request.email());
         User newUser = new User();
-
         if(user.isEmpty()) {
             log.debug("User not found with this email: {}. register...", request.email());
             newUser.setUsername(request.username());
@@ -68,6 +70,7 @@ public class AuthService implements AuthServiceUseCase {
                 log.warn("Invalid Password: {}", request.email());
                 throw new CustomException(401, PASSWORD_MESSAGE);
             }
+
             newUser.setRoles(request.role());
             newUser.setCreatedAt(LocalDateTime.now());
             newUser.setActive(true);
@@ -87,58 +90,23 @@ public class AuthService implements AuthServiceUseCase {
     //@RateLimiter(name = "SERVICE_NAME", fallbackMethod = "rateLimiterFallback")
     public LoginResponseDto login(UserRequestDto request) {
         log.info("Starting user login: {}", request.email());
-        var userFound = userRepository.findByEmail(request.email()).orElseThrow(() -> new CustomException(400, "Email or password doesn't match"));
 
-        if(!passwordEncoder.matches(request.password(), userFound.getPasswordHash())) {
-            log.info("Wrong password: {}", request.email());
-            throw new CustomException(400, PASSWORD_MESSAGE);
-        }
-
-        userFound.setPasswordHash(null);
-        log.info("Successfully login: {}", request.email());
-        return new LoginResponseDto(userFound.getId(),
-                    userFound.getUsername(),
-                    tokenService.generateToken(userFound)
-                    );
-    }
-
-    @Override
-    public ResponseResetPasswordDto changePassword(NewPasswordDto request) {
-        log.info("Starting change password: {}", request.email());
-
-        var userFound = userRepository.findByEmail(request.email()).orElseThrow(() -> new CustomException(400, "Email or password doesn't match"));
-
-        if(!passwordEncoder.matches(request.oldPassword(), userFound.getPasswordHash())) {
-            log.info("Wrong password: {}", request.email());
-            throw new CustomException(400, PASSWORD_MESSAGE);
-        }
-        userFound.setPasswordHash(passwordEncoder.encode(request.newPassword()));
-        log.info("Successfully set new Password: {}", request.email());
-        return new ResponseResetPasswordDto("Successfully set new password");
-    }
-
-    @Override
-    public void sendPINtoEmail(ResetPasswordDto request) {
-        Optional<User> userFound = userRepository.findByEmail(request.email());
+        var userFound = Optional.ofNullable(userRepository.findByEmail(request.email()).orElseThrow(() -> new CustomException(400, WRONG_EMAIL_PASSWORD)));
 
         if(userFound.isPresent()) {
-            //SERVIÇO EMAIL (userFound.get().getEmail)
-        } else{
-           throw  new CustomException(400, "Email doesn't match");
+            var user = userFound.get();
+            if(!passwordEncoder.matches(request.password(), user.getPasswordHash())) {
+                log.info("Wrong password: {}", request.email());
+                throw new CustomException(400, WRONG_EMAIL_PASSWORD);
+            }
+            log.info("Successfully login: {}", request.email());
+            return new LoginResponseDto(user.getId(),
+                    user.getUsername(),
+                    tokenService.generateToken(user)
+            );
         }
+        throw  new CustomException(400, WRONG_EMAIL_PASSWORD);
     }
 
-    @Override
-    public void vefifyPIN(ResetPasswordDto request) {
 
-    }
-
-    @Override
-    public ResponseResetPasswordDto resetPassword(NewPasswordDto request) {
-        return null;
-    }
-
-    private LoginResponseDto rateLimiterFallback(UserRequestDto request, Exception ex) {
-        throw new CustomException(429, "Too many requests. Please try again later.");
-    }
 }

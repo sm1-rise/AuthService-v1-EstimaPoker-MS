@@ -2,6 +2,13 @@ server:
   port: 8083
 
 spring:
+  web:
+    cors:
+      allowed-origins: http://localhost:5173
+  application:
+    name: authservice
+
+
   jpa:
     hibernate:
       ddl-auto: update
@@ -12,6 +19,14 @@ spring:
     password:
     driver-class-name: com.mysql.cj.jdbc.Driver
 
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username:
+    password:
+
+queue:
+  name: default.email
 
 eureka:
   client:
@@ -20,8 +35,16 @@ eureka:
       register-with-eureka: true
       fetch-registry: true
 
-
 api:
   security:
     token:
       secret:
+
+resilience4j:
+  ratelimiter:
+    instances:
+      authservice:
+        limit-for-period: 5
+        limit-refresh-period: 15s
+        timeout-duration: 10s
+        register-health-indicator: true
